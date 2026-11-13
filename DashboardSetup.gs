@@ -108,9 +108,9 @@ function buildData_(data) {
   ];
   f.forEach(function (formula, i) { data.getRange(i + 1, 13).setFormula(formula); }); // M1:M7
 
-  // income criteria (M8): QUERY letters are relative to the range Y:AE -> Month=E, Account=D, Tag=G
+  // income criteria (M8): ColN counts from the start of the Y:AE range -> Month=Col5, Account=Col4, Tag=Col7
   data.getRange("L8").setValue("income where: month+account+tag");
-  data.getRange("M8").setFormula('=' + monthPart.replace(" F = ", " E = ") + '&' + accPart.replace(" E = ", " D = ") + '&' + tagPart.replace(" H contains", " G contains"));
+  data.getRange("M8").setFormula('=' + monthPart.replace(" F = ", " Col5 = ") + '&' + accPart.replace(" E = ", " Col4 = ") + '&' + tagPart.replace(" H contains", " Col7 contains"));
 
   // monthly trend (last N calendar months, filtered by the account and tag dropdowns)
   const N = TREND_MONTHS;
@@ -188,8 +188,8 @@ function buildDashboard_(dash, data, tz) {
     return '=IFERROR(SUM(QUERY(' + SRC + ',"select ' + agg + '(C) where C is not null"&' + DT + 'M1,1)),0)';
   };
   const INC = DT + "Y1:AE" + R;
-  dash.getRange("B7").setFormula('=IFERROR(SUM(QUERY(' + INC + ',"select sum(B) where B is not null"&' + DT + 'M8,1)),0)').setNumberFormat(INR_CELL);
-  dash.getRange("B8").setFormula('=IFERROR(COUNT(QUERY(' + INC + ',"select B where B is not null"&' + DT + 'M8,1))&" entr"&IF(COUNT(QUERY(' + INC + ',"select B where B is not null"&' + DT + 'M8,1))=1,"y","ies"),"")');
+  dash.getRange("B7").setFormula('=IFERROR(SUM(QUERY(' + INC + ',"select sum(Col2) where Col2 is not null"&' + DT + 'M8,1)),0)').setNumberFormat(INR_CELL);
+  dash.getRange("B8").setFormula('=IFERROR(COUNT(QUERY(' + INC + ',"select Col2 where Col2 is not null"&' + DT + 'M8,1))&" entr"&IF(COUNT(QUERY(' + INC + ',"select Col2 where Col2 is not null"&' + DT + 'M8,1))=1,"y","ies"),"")');
   dash.getRange("D7").setFormula(q1("sum")).setNumberFormat(INR_CELL);
   dash.getRange("D8").setFormula(
     '="₹"&TEXT(IFERROR(D7/' + DT + 'M7,0),"' + INR_TEXT + '")&"/day"&IF($C$4="All","",IFERROR(LET(p,SUM(QUERY(' + SRC + ',"select sum(C) where C is not null and F = \'"&' + DT + 'M6&"\'"&' + DT + 'M3,1)),' +
