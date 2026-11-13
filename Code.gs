@@ -86,14 +86,11 @@ function doPost(request) {
     locked = true;
     tab.insertRowsAfter(1, 1);
     const row = tab.getRange(2, 1, 1, TX_HEADERS.length);
-    // the new row inherits the header's look; take format + validation from the row below instead
-    if (tab.getLastRow() >= 3) {
-      const below = tab.getRange(3, 1, 1, TX_HEADERS.length);
-      below.copyTo(row, SpreadsheetApp.CopyPasteType.PASTE_FORMAT, false);
-      below.copyTo(row, SpreadsheetApp.CopyPasteType.PASTE_DATA_VALIDATION, false);
-    }
+    // the inserted row inherits the header's look and has no validation, so reset it
+    row.clearFormat().setFontWeight("normal");
     row.setValues([[date, type, description, amount, account, toAccount, category, "", ""]]);
     tab.getRange(2, 1).setNumberFormat("yyyy-mm-dd");
+    tab.getRange(2, 4).setNumberFormat("#,##0.00");
     SpreadsheetApp.flush();
 
     return jsonResponse_({ status: "success", type: type, category: category });
