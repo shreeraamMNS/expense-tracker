@@ -58,17 +58,17 @@ function buildData_(data) {
   const T = TX_TAB + "!";
 
   // Transactions columns: A Date, B Type, C Description, D Amount, E Account, G Category, H Tags
-  const isExpense = T + 'A2:A<>"", ' + T + 'B2:B="EXPENSE"';
+  const isExpense = T + 'A1:A<>"", ' + T + 'B1:B="EXPENSE"';
   data.getRange("A1:H1").setValues([["Date", "Description", "Amount", "Category", "Account", "Month", "DateNum", "TagKey"]]);
   data.getRange("A2").setFormula(
-    "=IFERROR(FILTER({" + T + "A2:A, " + T + "C2:C, " + T + "D2:D, " + T + "G2:G, " + T + "E2:E}, " + isExpense + '),"")'
+    "=IFERROR(FILTER({" + T + "A1:A, " + T + "C1:C, " + T + "D1:D, " + T + "G1:G, " + T + "E1:E}, " + isExpense + '),"")'
   );
   // DateNum works whether the sheet stored a real date or a text date
   data.getRange("G2").setFormula('=ARRAYFORMULA(IF(A2:A="","",IF(ISNUMBER(A2:A),A2:A,DATEVALUE(A2:A&""))))');
   data.getRange("F2").setFormula('=ARRAYFORMULA(IF(G2:G="","",TEXT(G2:G,"yyyy-mm")))');
   // ",goa-trip,impulse," so a tag filter can match whole tags only; rows line up with A:E (same FILTER)
   data.getRange("H2").setFormula(
-    '=IFERROR(LET(t,FILTER(' + T + 'H2:H, ' + isExpense + '),ARRAYFORMULA(IF(t="","",","&REGEXREPLACE(LOWER(t&""),"\\s*,\\s*",",")&","))),"")'
+    '=IFERROR(LET(t,FILTER(' + T + 'H1:H, ' + isExpense + '),ARRAYFORMULA(IF(t="","",","&REGEXREPLACE(LOWER(t&""),"\\s*,\\s*",",")&","))),"")'
   );
 
   // dropdown sources
@@ -80,15 +80,15 @@ function buildData_(data) {
   data.getRange("W2").setFormula('=IFERROR(SORT(UNIQUE(TRANSPOSE(SPLIT(TEXTJOIN(",",TRUE,H2:H' + R + ',AE2:AE' + R + '),",")))))');
 
   // INCOME rows (Y:AE) - Date, Amount, Category, Account, Month, DateNum, TagKey
-  const isIncome = T + 'A2:A<>"", ' + T + 'B2:B="INCOME"';
+  const isIncome = T + 'A1:A<>"", ' + T + 'B1:B="INCOME"';
   data.getRange("Y1:AE1").setValues([["Date", "Amount", "Category", "Account", "Month", "DateNum", "TagKey"]]);
   data.getRange("Y2").setFormula(
-    "=IFERROR(FILTER({" + T + "A2:A, " + T + "D2:D, " + T + "G2:G, " + T + "E2:E}, " + isIncome + '),"")'
+    "=IFERROR(FILTER({" + T + "A1:A, " + T + "D1:D, " + T + "G1:G, " + T + "E1:E}, " + isIncome + '),"")'
   );
   data.getRange("AD2").setFormula('=ARRAYFORMULA(IF(Y2:Y="","",IF(ISNUMBER(Y2:Y),Y2:Y,DATEVALUE(Y2:Y&""))))');
   data.getRange("AC2").setFormula('=ARRAYFORMULA(IF(AD2:AD="","",TEXT(AD2:AD,"yyyy-mm")))');
   data.getRange("AE2").setFormula(
-    '=IFERROR(LET(t,FILTER(' + T + 'H2:H, ' + isIncome + '),ARRAYFORMULA(IF(t="","",","&REGEXREPLACE(LOWER(t&""),"\\s*,\\s*",",")&","))),"")'
+    '=IFERROR(LET(t,FILTER(' + T + 'H1:H, ' + isIncome + '),ARRAYFORMULA(IF(t="","",","&REGEXREPLACE(LOWER(t&""),"\\s*,\\s*",",")&","))),"")'
   );
 
   // criteria cells (driven by the Month / Account / Tag dropdowns on the Dashboard)

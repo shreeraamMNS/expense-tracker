@@ -91,6 +91,11 @@ function doPost(request) {
     row.setValues([[date, type, description, amount, account, toAccount, category, "", ""]]);
     tab.getRange(2, 1).setNumberFormat("yyyy-mm-dd");
     tab.getRange(2, 4).setNumberFormat("#,##0.00");
+    // inserting at the top pushes the sheet-wide validation down a row, so reapply it
+    tab.getRange(2, 2).setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(TYPES, true).setAllowInvalid(false).build());
+    const accRule = SpreadsheetApp.newDataValidation()
+      .requireValueInRange(SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ACCOUNTS_TAB).getRange("A2:A"), true).setAllowInvalid(false).build();
+    tab.getRange(2, 5, 1, 2).setDataValidation(accRule);
     SpreadsheetApp.flush();
 
     return jsonResponse_({ status: "success", type: type, category: category });
