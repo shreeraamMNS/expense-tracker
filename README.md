@@ -35,6 +35,7 @@ A Google Sheet + Apps Script + iPhone Shortcuts setup for logging expenses, inco
 
 ### 3. Fill in the lists
 - **`Accounts` tab:** one row per account or card, column A is the name (for example `SBI`, `Axis_CC`, `Cash`). Replace the samples. These names are what the shortcuts must send; case is ignored.
+- **Balances (columns C and D):** type each account's balance as of today in `Starting Balance` (for a credit card, what you owe as a negative number). `Balance` is a formula, so you don't edit it. It equals Starting Balance + INCOME − EXPENSE − TRANSFER out + TRANSFER in, taken from every row on `Transactions`. Rows added by the API or typed by hand both count, and so do edits and deletions. To offset or correct a balance, change `Starting Balance`. Enter a Starting Balance only for money that existed before your first logged row.
 - **`Keywords` tab:** `Keyword | Category`, for example `zomato | FOOD`, `sip | INVESTMENT`. Order matters: the first match wins.
 
 ### 4. Build the dashboard

@@ -5,10 +5,26 @@
 function setupSheets() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
 
-  const accounts = getOrCreate_(ss, ACCOUNTS_TAB, ["Account", "Kind"], [
-    ["SBI", "Bank"], ["Axis_CC", "Credit Card"], ["Cash", "Cash"]
+  const accounts = getOrCreate_(ss, ACCOUNTS_TAB, ["Account", "Kind", "Starting Balance", "Balance"], [
+    ["SBI", "Bank", 0], ["Axis_CC", "Credit Card", 0], ["Cash", "Cash", 0]
   ]);
   accounts.setColumnWidth(1, 160);
+  accounts.setColumnWidth(3, 130);
+  accounts.setColumnWidth(4, 130);
+  accounts.getRange("C2:D").setNumberFormat("#,##0.00");
+  // upgrade an Accounts tab created before the balance columns existed
+  if (!accounts.getRange("C1").getValue()) accounts.getRange("C1:D1").setValues([["Starting Balance", "Balance"]])
+    .setFontWeight("bold").setBackground("#6366f1").setFontColor("#ffffff");
+  // Balance = Starting Balance + INCOME - EXPENSE - TRANSFER out + TRANSFER in, from every row on Transactions
+  if (!accounts.getRange("D2").getFormula()) {
+    const T = TX_TAB + "!";
+    const sum = function (typeCol, type) {
+      return "SUMIFS(" + T + "$D:$D," + T + "$" + typeCol + ":$" + typeCol + ",INDEX(r,1)," + T + "$B:$B,\"" + type + "\")";
+    };
+    accounts.getRange("D2").setFormula(
+      '=BYROW(A2:C,LAMBDA(r,IF(INDEX(r,1)="","",N(INDEX(r,3))+' + sum("E", "INCOME") + "-" + sum("E", "EXPENSE") + "-" + sum("E", "TRANSFER") + "+" + sum("F", "TRANSFER") + ")))"
+    );
+  }
 
   const keywords = getOrCreate_(ss, KEYWORDS_TAB, ["Keyword", "Category"], [
     ["zomato", "FOOD"], ["swiggy", "FOOD"], ["uber", "TRANSPORT"], ["sip", "INVESTMENT"], ["salary", "SALARY"]
@@ -43,6 +59,6 @@ function getOrCreate_(ss, name, headers, sampleRows) {
   sh = ss.insertSheet(name);
   sh.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight("bold").setBackground("#6366f1").setFontColor("#ffffff");
   sh.setFrozenRows(1);
-  if (sampleRows && sampleRows.length) sh.getRange(2, 1, sampleRows.length, headers.length).setValues(sampleRows);
+  if (sampleRows && sampleRows.length) sh.getRange(2, 1, sampleRows.length, sampleRows[0].length).setValues(sampleRows);
   return sh;
 }
